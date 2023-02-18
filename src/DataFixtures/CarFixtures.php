@@ -15,16 +15,19 @@ class CarFixtures extends Fixture
 
         for( (int)$i = 0; $i < 20; $i++) {
 
-
+           
 
             //---------- Création des fixtures VOITURE ----------
         
             $voiture = new Car();
+
+
             $voiture->setImmatriculation($i);
             $voiture->setBrand("alpine");
             $voiture->setModel("A110");
             $voiture->setNbrPlaces(4);
 
+       
         }
 
         $manager->flush();

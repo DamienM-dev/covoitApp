@@ -9,20 +9,29 @@ use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
-class UserFixtures extends Fixture
+class RideFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
+        
+        $villes = $manager->getRepository(City::class)->findAll();
 
-        for( (int)$i = 0; $i < 20; $i++) {
+       
+
+            $villeDepart = $villes[array_rand($villes)];
+            $villeArrivee = $villes[array_rand($villes)];
 
             $trajet = new Ride();
             $trajet->setDistance(800);
             $trajet->setDepartureAt(new \DateTime());
             $trajet->setArrivalAt(new \DateTime());
             $trajet->setPlacesAvailable(5);
-            
-        }
+
+            $trajet->setCityDeparture($villeDepart);
+            $trajet->setCityArrival($villeArrivee);
+
+            $manager->persist($trajet);
+        
 
         $manager->flush();
     }

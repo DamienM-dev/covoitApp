@@ -12,6 +12,8 @@ class ReservationFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
 
+        for( (int)$i = 0; $i < 20; $i++) {
+
         $trajets = $manager->getRepository(Ride::class)->findAll();
 
             foreach ($trajets as $trajet) {
@@ -25,7 +27,8 @@ class ReservationFixtures extends Fixture
             }
            
         
-
+        }
+        
         $manager->flush();
     }
 }

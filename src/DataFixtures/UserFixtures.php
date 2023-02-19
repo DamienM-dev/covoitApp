@@ -17,14 +17,15 @@ class UserFixtures extends Fixture
 
             
             $reservation = $manager->getRepository(Reservation::class)->findOneBy(['id' => $i]);
-            $trajet = $manager->getRepository(Ride::class)->findOneBy(['id' => $i]);
+            $trajets = $manager->getRepository(Ride::class)->findAll();
 
 
+            foreach ($trajets as $trajet) {
             $utilisateur = new User();
             $utilisateur->setLogin("Raphou".$i);
             $utilisateur->setName("Raphaêl".$i);
             $utilisateur->setSurname("Etdonatelo");
-            $utilisateur->setEmail("raphoudu56@mail.com");
+            $utilisateur->setEmail('raphoudu5'.$i.'@mail.com');
             $utilisateur->setPassword("MotDePasseIncracable");
             $utilisateur->setLogin("Raphou".$i);
 
@@ -32,7 +33,9 @@ class UserFixtures extends Fixture
             $utilisateur->setRide($trajet);
 
         
+
             $manager->persist($utilisateur);
+            }
         }
 
         $manager->flush();

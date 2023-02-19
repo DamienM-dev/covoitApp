@@ -2,10 +2,8 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Car;
 use App\Entity\City;
 use App\Entity\Ride;
-use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
@@ -16,6 +14,7 @@ class RideFixtures extends Fixture
         
         $villes = $manager->getRepository(City::class)->findAll();
 
+      
        
 
             $villeDepart = $villes[array_rand($villes)];

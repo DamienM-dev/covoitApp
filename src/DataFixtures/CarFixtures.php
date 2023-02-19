@@ -6,14 +6,17 @@ use App\Entity\Car;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 
+
 class CarFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
+  
+        
 
         for( (int)$i = 0; $i < 20; $i++) {
 
-           
+        
 
             //---------- Création des fixtures VOITURE ----------
         

@@ -6,11 +6,14 @@ use App\Entity\Reservation;
 use App\Entity\Ride;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
 
 class ReservationFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
+        
+        $faker = Factory::create('fr_FR');
 
         for( (int)$i = 0; $i < 20; $i++) {
 
@@ -18,8 +21,8 @@ class ReservationFixtures extends Fixture
 
             foreach ($trajets as $trajet) {
                 $reservation = new Reservation();
-                $reservation->setCreatedAt(new \DateTime());
-                $reservation->setUptatedAt(new \DateTime());
+                $reservation->setCreatedAt($faker->dateTime());
+                $reservation->setUptatedAt($faker->dateTime());
                         
                 $reservation->setIdReservationRide($trajet);
 
@@ -28,7 +31,7 @@ class ReservationFixtures extends Fixture
            
         
         }
-        
+
         $manager->flush();
     }
 }

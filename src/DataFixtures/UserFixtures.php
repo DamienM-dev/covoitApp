@@ -7,11 +7,13 @@ use App\Entity\Ride;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
 
 class UserFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
+            $faker = Factory::create('fr_FR');
 
         for( (int)$i = 0; $i < 20; $i++) {
 
@@ -23,11 +25,11 @@ class UserFixtures extends Fixture
             foreach ($trajets as $trajet) {
             $utilisateur = new User();
             $utilisateur->setLogin("Raphou".$i);
-            $utilisateur->setName("Raphaêl".$i);
-            $utilisateur->setSurname("Etdonatelo");
-            $utilisateur->setEmail('raphoudu5'.$i.'@mail.com');
-            $utilisateur->setPassword("MotDePasseIncracable");
-            $utilisateur->setLogin("Raphou".$i);
+            $utilisateur->setName($faker->lastName());
+            $utilisateur->setSurname($faker->firstname());
+            $utilisateur->setEmail($faker->email());
+            $utilisateur->setPassword($faker->password());
+            
 
             $utilisateur->setReservation($reservation);
             $utilisateur->setRide($trajet);
@@ -35,6 +37,7 @@ class UserFixtures extends Fixture
         
 
             $manager->persist($utilisateur);
+            
             }
         }
 

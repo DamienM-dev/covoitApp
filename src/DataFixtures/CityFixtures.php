@@ -5,11 +5,13 @@ namespace App\DataFixtures;
 use App\Entity\City;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
 
 class CityFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
+        $faker = Factory::create('fr_FR');
 
         for( (int)$i = 0; $i < 20; $i++) {
 
@@ -17,7 +19,7 @@ class CityFixtures extends Fixture
         //---------- Création des fixtures VILLE ----------
 
             $ville = new City();
-            $ville->setName('Ville n°'.$i);
+            $ville->setName($faker->city());
             $ville->setCp('5600'.$i);
             $ville->setLongitude('10'.$i);
             $ville->setLatitude('10'.$i);

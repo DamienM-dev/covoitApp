@@ -25,6 +25,7 @@ class ReservationFixtures extends Fixture
                 $reservation->setUptatedAt($faker->dateTime());
                         
                 $reservation->setIdReservationRide($trajet);
+            
 
                 $manager->persist($reservation);
             }

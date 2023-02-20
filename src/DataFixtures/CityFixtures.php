@@ -20,7 +20,7 @@ class CityFixtures extends Fixture
 
             $ville = new City();
             $ville->setName($faker->city());
-            $ville->setCp('5600'.$i);
+            $ville->setCp(intval($faker->postcode()));
             $ville->setLongitude('10'.$i);
             $ville->setLatitude('10'.$i);
 

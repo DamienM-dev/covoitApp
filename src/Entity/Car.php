@@ -27,7 +27,7 @@ class Car
     #[ORM\Column]
     private ?int $nbr_places = null;
 
-    #[ORM\ManyToMany(targetEntity: user::class)]
+    #[ORM\ManyToMany(targetEntity: User::class)]
     private Collection $id_fkuser;
 
     public function __construct()
@@ -97,7 +97,7 @@ class Car
         return $this->id_fkuser;
     }
 
-    public function addIdFkuser(user $idFkuser): self
+    public function addIdFkuser(User $idFkuser): self
     {
         if (!$this->id_fkuser->contains($idFkuser)) {
             $this->id_fkuser->add($idFkuser);
@@ -106,7 +106,7 @@ class Car
         return $this;
     }
 
-    public function removeIdFkuser(user $idFkuser): self
+    public function removeIdFkuser(User $idFkuser): self
     {
         $this->id_fkuser->removeElement($idFkuser);
 

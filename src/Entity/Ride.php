@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RideRepository::class)]
 class Ride
@@ -14,29 +15,36 @@ class Ride
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getUser", "getRide"])]
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(["getUser", "getRide"])]
     private ?int $distance = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(["getUser", "getRide"])]
     private ?\DateTimeInterface $departure_at = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(["getUser", "getRide"])]
     private ?\DateTimeInterface $arrival_at = null;
 
     #[ORM\Column]
+    #[Groups(["getUser", "getRide"])]
     private ?int $places_available = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?city $city_departure = null;
+    #[Groups(["getUser", "getRide"])]
+    private ?City $city_departure = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?city $city_arrival = null;
+    #[Groups(["getUser", "getRide"])]
+    private ?City $city_arrival = null;
 
-    #[ORM\OneToMany(mappedBy: 'ride', targetEntity: user::class)]
+    #[ORM\OneToMany(mappedBy: 'ride', targetEntity: User::class)]
     private Collection $id_ride_user;
 
     public function __construct()

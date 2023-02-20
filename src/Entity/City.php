@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CityRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CityRepository::class)]
 class City
@@ -14,6 +15,7 @@ class City
     private ?int $id = null;
 
     #[ORM\Column(length: 20)]
+    #[Groups(["getRide"])]
     private ?string $name = null;
 
     #[ORM\Column]

@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Brand;
 use App\Entity\Car;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -11,35 +12,20 @@ class CarFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-
         $faker = Factory::create('fr_FR');
-
-        $modelVoiture = ['Camry', 'Mustang', 'Civic', 'Corvette', 'X5', 'A4', 'class-C', 'Golf'];
-        $marquesVoiture = ['Toyota', 'Ford', 'Honda', 'Chevrolet', 'BMW', 'Audi', ' Mercedes-Benz', ' Volkswagen', 'Nissan', 'Jeep', 'Kia', 'Hyundai', 'Mazda', 'Subaru', 'Lexus', 'Porsche', 'Ferrari', 'Lamborghini', 'Aston Martin', 'Rolls-Royce'];
-
-        for ((int)$i = 0; $i < 20; $i++) {
-
-
-            
-
-
-            //---------- Création des fixtures VOITURE ----------
-
-            $voiture = new Car();
-
-
-
-
-            $voiture->setImmatriculation($i);
-            
-            $voiture->setBrand($faker->randomElement($marquesVoiture));
-            
-            $voiture->setModel($faker->randomElement($modelVoiture));
-            $voiture->setNbrPlaces($faker->numberBetween(1, 6));
-
-            $manager->persist($voiture);
+        $brands = $manager->getRepository(Brand::class)->findAll();
+   
+    
+        for ($i = 0; $i < 20; $i++) {
+            $car = new Car();
+            $randBrand = $brands[array_rand($brands)];
+            $car->setImmatriculation($faker->randomNumber(2, 5, true));
+            $car->setNbrPlaces($faker->numberBetween(1, 6));
+            $car->setTypeOf($randBrand);
+    
+            $manager->persist($car);
         }
-
+    
         $manager->flush();
     }
 }

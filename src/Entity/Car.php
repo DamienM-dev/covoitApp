@@ -18,17 +18,14 @@ class Car
     #[ORM\Column]
     private ?string $immatriculation = null;
 
-    #[ORM\Column(length: 20)]
-    private ?string $brand = null;
-
-    #[ORM\Column(length: 20)]
-    private ?string $model = null;
-
     #[ORM\Column]
     private ?int $nbr_places = null;
 
     #[ORM\ManyToMany(targetEntity: User::class)]
     private Collection $id_fkuser;
+
+    #[ORM\ManyToOne]
+    private ?Brand $type_of = null;
 
     public function __construct()
     {
@@ -49,30 +46,6 @@ class Car
     public function setImmatriculation(int $immatriculation): self
     {
         $this->immatriculation = $immatriculation;
-
-        return $this;
-    }
-
-    public function getBrand(): ?string
-    {
-        return $this->brand;
-    }
-
-    public function setBrand(string $brand): self
-    {
-        $this->brand = $brand;
-
-        return $this;
-    }
-
-    public function getModel(): ?string
-    {
-        return $this->model;
-    }
-
-    public function setModel(string $model): self
-    {
-        $this->model = $model;
 
         return $this;
     }
@@ -109,6 +82,18 @@ class Car
     public function removeIdFkuser(User $idFkuser): self
     {
         $this->id_fkuser->removeElement($idFkuser);
+
+        return $this;
+    }
+
+    public function getTypeOf(): ?brand
+    {
+        return $this->type_of;
+    }
+
+    public function setTypeOf(?brand $type_of): self
+    {
+        $this->type_of = $type_of;
 
         return $this;
     }

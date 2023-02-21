@@ -18,4 +18,16 @@ class VilleController extends AbstractController
             'Inscriptions' => $ville,
         ]);
     }
+    #[Route('/api/postal', name: 'code_postal', methods: ['GET'])]
+public function getAllCp(CityRepository $cityRepository): JsonResponse
+{
+    $cities = $cityRepository->findAll();
+    $codes_postaux = array();
+    foreach ($cities as $city) {
+        $codes_postaux[] = $city->getCp();
+    }
+    return $this->json([
+        'codes_postaux' => $codes_postaux,
+    ]);
+}
 }

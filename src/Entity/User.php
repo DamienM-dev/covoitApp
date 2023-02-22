@@ -44,9 +44,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(["getUser"])]
     private ?string $surname = null;
 
-    #[ORM\ManyToOne(inversedBy: 'id_reservation_user')]
-    private ?Reservation $reservation = null;
-
     #[ORM\ManyToOne(inversedBy: 'id_ride_user')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Ride $ride = null;
@@ -157,17 +154,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getReservation(): ?Reservation
-    {
-        return $this->reservation;
-    }
-
-    public function setReservation(?Reservation $reservation): self
-    {
-        $this->reservation = $reservation;
-
-        return $this;
-    }
 
     public function getRide(): ?Ride
     {

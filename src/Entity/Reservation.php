@@ -34,6 +34,10 @@ class Reservation
     #[Groups(["getUser"])]
     private ?Ride $id_reservation_ride = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?user $reservation_from = null;
+
     public function __construct()
     {
         $this->id_reservation_user = new ArrayCollection();
@@ -76,28 +80,6 @@ class Reservation
         return $this->id_reservation_user;
     }
 
-    public function addIdReservationUser(user $idReservationUser): self
-    {
-        if (!$this->id_reservation_user->contains($idReservationUser)) {
-            $this->id_reservation_user->add($idReservationUser);
-            $idReservationUser->setReservation($this);
-        }
-
-        return $this;
-    }
-
-    public function removeIdReservationUser(user $idReservationUser): self
-    {
-        if ($this->id_reservation_user->removeElement($idReservationUser)) {
-            // set the owning side to null (unless already changed)
-            if ($idReservationUser->getReservation() === $this) {
-                $idReservationUser->setReservation(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getIdReservationRide(): ?ride
     {
         return $this->id_reservation_ride;
@@ -106,6 +88,18 @@ class Reservation
     public function setIdReservationRide(?ride $id_reservation_ride): self
     {
         $this->id_reservation_ride = $id_reservation_ride;
+
+        return $this;
+    }
+
+    public function getReservationFrom(): ?user
+    {
+        return $this->reservation_from;
+    }
+
+    public function setReservationFrom(?user $reservation_from): self
+    {
+        $this->reservation_from = $reservation_from;
 
         return $this;
     }

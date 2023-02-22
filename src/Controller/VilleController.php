@@ -2,12 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\City;
 use App\Repository\CityRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 class VilleController extends AbstractController
 {
@@ -35,6 +38,26 @@ class VilleController extends AbstractController
     
         return new JsonResponse(['message' => 'La ville a été supprimée avec succès.'], 200);
     }
+
+    #[Route('api/post/ville', name:'ajouter_livre', methods:['POST'])]
+public function createCity(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse
+{
+    $city = $serializer->deserialize($request->getContent(), City::class, 'json');
+
+    $existingCity = $entityManager->getRepository(City::class)->findOneBy(['name' => $city->getName()]);
+
+    if ($existingCity) {
+        return new JsonResponse(['error' => 'La ville existe déjà en base de données'], 409);
+    }
+
+    $entityManager->persist($city);
+    $entityManager->flush();
+
+    $jsonCity = $serializer->serialize($city, 'json');
+
+    return new JsonResponse($jsonCity, 200, [], true);
+}
+
 
 
     #[Route('/api/postal', name: 'code_postal', methods: ['GET'])]

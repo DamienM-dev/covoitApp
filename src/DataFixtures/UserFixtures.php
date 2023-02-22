@@ -31,7 +31,7 @@ class UserFixtures extends Fixture
             $utilisateur->setPassword($faker->password());
             
 
-            $utilisateur->setReservation($reservation);
+        
             $utilisateur->setRide($trajet);
 
         

@@ -2,11 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class UserController extends AbstractController
@@ -35,6 +38,34 @@ class UserController extends AbstractController
     
         return new JsonResponse(['message' => 'L\'utilisateur a été supprimée avec succès.'], 200);
     }
+
+    #[Route('api/update/utilisateur/{id}', name: 'update_utilisateur', methods: ['PUT'])]
+    public function updateUser(Request $request, User $user, SerializerInterface $serializer, EntityManagerInterface $entityManager, UserRepository $userRepository): JsonResponse
+    {
+        // Désérialiser la requête PUT en objet User
+        $updatedUser = $serializer->deserialize($request->getContent(), User::class, 'json');
+    
+        // Récupérer l'ID de l'utilisateur à mettre à jour depuis la route
+        $id = $request->attributes->get('id');
+    
+        $existingUser = $userRepository->find($id);
+        if (!$existingUser) {
+            return new JsonResponse(['message' => 'Utilisateur non trouvé'], JsonResponse::HTTP_NOT_FOUND);
+        }
+    
+    
+        $existingUser->setName($updatedUser->getName());
+        $existingUser->setSurname($updatedUser->getSurname());
+        $existingUser->setEmail($updatedUser->getEmail());
+        
+    
+    
+        $entityManager->flush();
+    
+        
+        return new JsonResponse(['message' => 'Utilisateur mis à jour'], JsonResponse::HTTP_OK);
+    }
+    
     
     #[Route('/api/inscription/{id}', name: 'app_one_inscription', methods: ['GET'])]
     public function getOneSubscribe(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse

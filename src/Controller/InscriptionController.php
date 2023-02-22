@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Repository\UserRepository;
+use App\Repository\ReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,43 +11,30 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class InscriptionController extends AbstractController
 {
-    #[Route('/api/inscription', name: 'app_inscription', methods: ['GET'])]
-    public function getAllSubscribe(UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
-    {
-        $inscription = $userRepository->findAll();
-        $inscriptionJson = $serializer->serialize($inscription, 'json', ['groups' => 'getUser']);
-
-        return new JsonResponse($inscriptionJson, 200, [], true);
     
-    }
-
-    #[Route('/api/delete/utilisateur/{id}', name: 'delete_user', methods:['DELETE'])]
-    public function deleteCar(int $id, UserRepository $userRepository, EntityManagerInterface $entityManager)
-    {
-        $userDelete = $userRepository->find($id);
-    
-        if (!$userDelete) {
-            return new JsonResponse(['error' => 'L\'utilisateur avec cet ID n\'existe pas.'], 404);
-        }
-    
-        $entityManager->remove($userDelete);
-        $entityManager->flush();
-    
-        return new JsonResponse(['message' => 'L\'utilisateur a été supprimée avec succès.'], 200);
-    }
-    
-    #[Route('/api/inscription/{id}', name: 'app_one_inscription', methods: ['GET'])]
-    public function getOneSubscribe(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
-    {
-        $inscription = $userRepository->find($id);
-        if($inscription) {
-
+        #[Route('/api/inscription', name: 'app_inscription', methods: ['GET'])]
+        public function getAllSubscribe(ReservationRepository $userRepository, SerializerInterface $serializer): JsonResponse
+        {
+            $inscription = $userRepository->findAll();
             $inscriptionJson = $serializer->serialize($inscription, 'json', ['groups' => 'getUser']);
+    
             return new JsonResponse($inscriptionJson, 200, [], true);
-        } else {
-            return new JsonResponse(['error' => 'Utilisateur non trouvé'], 404);
         }
-    }
 
+        #[Route('/api/delete/inscription/{id}', name: 'delete_inscription', methods:['DELETE'])]
+        public function deleteSubscribe(int $id, ReservationRepository $reservationRepository, EntityManagerInterface $entityManagerInterface)
+        {
+            $deleteSubscribe = $reservationRepository->find($id);
+
+            if(!$deleteSubscribe) {
+                return new JsonResponse(['error' => 'L\'inscription avec cet ID n\'existe pas.'], 404);
+
+
+            } else {
+                $entityManagerInterface->remove($deleteSubscribe);
+                $entityManagerInterface->flush();
+                return new JsonResponse(['message' => 'La suppression de l\'inscription est réussite'], 200);
+            }
+
+        }
 }
-

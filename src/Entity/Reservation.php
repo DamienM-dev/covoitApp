@@ -26,13 +26,13 @@ class Reservation
     #[Groups(["getUser"])]
     private ?\DateTimeInterface $uptated_at = null;
 
-    #[ORM\OneToMany(mappedBy: 'reservation', targetEntity: user::class)]
+    #[ORM\OneToMany(mappedBy: 'reservation', targetEntity: User::class)]
     private Collection $id_reservation_user;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(["getUser"])]
-    private ?ride $id_reservation_ride = null;
+    private ?Ride $id_reservation_ride = null;
 
     public function __construct()
     {

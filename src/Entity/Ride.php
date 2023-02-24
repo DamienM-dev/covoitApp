@@ -44,7 +44,7 @@ class Ride
     #[Groups(["getUser", "getRide"])]
     private ?City $city_arrival = null;
 
-    #[ORM\OneToMany(mappedBy: 'ride', targetEntity: User::class)]
+    #[ORM\OneToMany(mappedBy: 'ride', targetEntity: User::class, cascade:["persist"])]
     private Collection $id_ride_user;
 
     public function __construct()

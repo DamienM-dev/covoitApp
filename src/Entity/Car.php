@@ -6,6 +6,7 @@ use App\Repository\CarRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CarRepository::class)]
 class Car
@@ -13,6 +14,7 @@ class Car
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getCar"])]
     private ?int $id = null;
 
     #[ORM\Column]
@@ -24,7 +26,7 @@ class Car
     #[ORM\ManyToMany(targetEntity: User::class)]
     private Collection $id_fkuser;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade:["persist"])]
     private ?Brand $type_of = null;
 
     public function __construct()
@@ -43,7 +45,7 @@ class Car
         return $this->immatriculation;
     }
 
-    public function setImmatriculation(int $immatriculation): self
+    public function setImmatriculation(string $immatriculation): self
     {
         $this->immatriculation = $immatriculation;
 

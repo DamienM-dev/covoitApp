@@ -15,7 +15,7 @@ class Reservation
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getUser"])]
+    #[Groups(["getUser","getConducteur"])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -31,7 +31,7 @@ class Reservation
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(["getUser"])]
+    #[Groups(["getUser","getConducteur"])]
     private ?Ride $id_reservation_ride = null;
 
     #[ORM\ManyToOne]

@@ -48,7 +48,7 @@ class TrajetController extends AbstractController
     public function postRide(Request $request, EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
     {
         $trajet = $serializerInterface->deserialize($request->getContent(), Ride::class,'json');
-        // $utilisateur = $serializerInterface->deserialize($request->getContent(), User::class,'json');
+
 
         $entityManagerInterface->persist($trajet);
         $entityManagerInterface->flush();

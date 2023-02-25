@@ -30,8 +30,6 @@ class UserFixtures extends Fixture
             $utilisateur->setEmail($faker->email());
             $utilisateur->setPassword($faker->password());
             
-
-        
             $utilisateur->setRide($trajet);
 
         

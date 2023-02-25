@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Brand;
 use App\Repository\BrandRepository;
+use App\Repository\CarRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,19 +27,25 @@ class BrandController extends AbstractController
         }
 
         #[Route('/api/delete/marque/{id}', name: 'delete_marque', methods:['DELETE'])]
-        public function deleteCar(int $id, BrandRepository $brandRepository, EntityManagerInterface $entityManager)
-        {
-            $brand = $brandRepository->find($id);
-        
-            if (!$brand) {
-                return new JsonResponse(['error' => 'La marque avec cet ID n\'existe pas.'], 404);
+            public function deleteBrand(int $id, CarRepository $carRepository, BrandRepository $brandRepository, EntityManagerInterface $entityManager)
+            {
+                $brand = $brandRepository->find($id);
+                
+                if (!$brand) {
+                    return new JsonResponse(['error' => 'La marque avec cet ID n\'existe pas.'], 404);
+                }
+                
+                $cars = $carRepository->findBy(['type_of' => $brand]);
+                
+                foreach ($cars as $car) {
+                    $entityManager->remove($car);
+                }
+                
+                $entityManager->remove($brand);
+                $entityManager->flush();
+                
+                return new JsonResponse(['message' => 'La marque et les voitures associer ont été supprimées avec succès.'], 200);
             }
-        
-            $entityManager->remove($brand);
-            $entityManager->flush();
-        
-            return new JsonResponse(['message' => 'La marque a été supprimée avec succès.'], 200);
-        }
 
         #[Route('api/post/marque', name: 'post_marque', methods:['POST'])]
         public function postBrand(Request $request, SerializerInterface $serializerInterface, EntityManagerInterface $entityManager): JsonResponse

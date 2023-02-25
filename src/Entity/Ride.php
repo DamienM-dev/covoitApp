@@ -40,7 +40,7 @@ class Ride
     private ?City $city_departure = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn]
     #[Groups(["getUser", "getRide"])]
     private ?City $city_arrival = null;
 

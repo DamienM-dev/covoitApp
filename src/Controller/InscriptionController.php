@@ -25,35 +25,47 @@ class InscriptionController extends AbstractController
         #[Route('/api/inscription/utilisateur/{id}', name: 'app_liste_inscription', methods: ['GET'])]
         public function getSubscribeById(int $id, ReservationRepository $reservationRepository, SerializerInterface $serializer): JsonResponse
         {
-            $reservations = $reservationRepository->findOneBy(['reservation_from' => $id]);
-            //verif si existe
-            //get trajetid
-
-            //même chose avec trajet
-            
-            $reservationIdJson = $serializer->serialize($reservations, 'json');
+            $reservations = $reservationRepository->findBy(['reservation_from' => $id]);
         
-            return new JsonResponse($reservationIdJson, 200, [], true);
+            if (empty($reservations)) {
+                return new JsonResponse(['message' => 'Aucune réservation trouvée pour l\'utilisateur donné.'], 404);
+            }
+        
+            $reservationIds = [];
+            $reservationDs = [];
+            $reservationTs = [];
+        
+            foreach ($reservations as $reservation) {
+                $reservationIds[] = $reservation->getId();
+                // $reservationDs[] = $reservation->getCreatedAt();
+                // $reservationTs[] = $reservation->getUptatedAt();
+            }
+        
+            $reservationIdsJson = $serializer->serialize(['reservation_ids' => $reservationIds], 'json',['groups' => 'getInfoPassanger'] );
+        
+            return new JsonResponse($reservationIdsJson, 200, [], true);
         }
+        
 
-        // #[Route('/api/inscription/conducteur', name: 'app_liste_inscription', methods: ['GET'])]
-        // public function getSubscribeById(ReservationRepository $reservationRepository, SerializerInterface $serializer, EntityManagerInterface $entityManagerInterface): JsonResponse
-        // {    
-            // Récupérer l'id de id_reservation;
-            //     comparer avec l'id utilisateur
-            //     et si cela match afficher
+        #[Route('/api/inscription/conducteur', name: 'app_liste_inscription', methods: ['GET'])]
+        public function getDriverByIdRide(ReservationRepository $reservationRepository, SerializerInterface $serializer, EntityManagerInterface $entityManagerInterface): JsonResponse
+        {    
+            //1) regarder si l'utilisateur est lié à une voiture dans la table car_user
+            //2) Si oui il est conducteur et retourner son id
+            //3) Récupérer et afficher l'id ride
 
-            // $reservations = $reservationRepository->findAll();
-            // foreach($reservations as $reservation) {
-            //     $reservation = $entityManagerInterface->getRepository(Reservation::class)->findOneBy(['id_reservation' => json_decode((string)$reservations)->getIdReservationUser()]);
+         
+            $reservations = $reservationRepository->findAll();
+            foreach($reservations as $reservation) {
+                $reservation = $entityManagerInterface->getRepository(Reservation::class)->findOneBy(['id_reservation' => json_decode((string)$reservations)->getIdReservationUser()]);
 
-            // }
-            //  $json = $serializer->serialize($reservation, 'json', ['groups' => 'getConducteur']);
+            }
+             $json = $serializer->serialize($reservation, 'json', ['groups' => 'getConducteur']);
 
         
-            // return new JsonResponse($json, 200, [], true);
+            return new JsonResponse($json, 200, [], true);
         
-        
+        }
            
         
 

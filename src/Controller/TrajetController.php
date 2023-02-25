@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Ride;
-use App\Entity\User;
 use App\Repository\RideRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -51,6 +50,7 @@ class TrajetController extends AbstractController
 
 
         $entityManagerInterface->persist($trajet);
+        
         $entityManagerInterface->flush();
 
         $jsonTrajet = $serializerInterface->serialize($trajet, 'json');
@@ -60,11 +60,11 @@ class TrajetController extends AbstractController
 
     }
 
-    #[Route('api/post/trajet/{villeD}/{villeA}', name:'post_trajet', methods:['GET'])]
-    public function getFromManyThing(Request $request, string $villeD, string $villeA, ManagerRegistry $doctrine): JsonResponse
+    #[Route('api/get/trajet/{villeD}/{villeA}', name:'get_trajet', methods:['GET'])]
+    public function getFromManyThing(Request $request, int $villeD, int $villeA, ManagerRegistry $doctrine): JsonResponse
     {
+      
         if ($request->isMethod('GET')) {
-            // Get Entity Manager
             $em = $doctrine->getManager();
             $trajet = $em->getRepository(Ride::class)->find($villeD, $villeA);
             $resultat = [
@@ -75,13 +75,6 @@ class TrajetController extends AbstractController
         } else {
             $resultat = ["Pas de trajet correspondant"];
         }
-
-        // Send JSON response
         return new JsonResponse($resultat);
     }
-
-    
-
-    //KM,dateT,villeD,ville => trajet
-    //idper  => user
 }

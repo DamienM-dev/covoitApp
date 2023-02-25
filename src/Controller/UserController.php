@@ -123,6 +123,30 @@ class UserController extends AbstractController
         
         return new JsonResponse(['message' => 'Utilisateur mis à jour'], JsonResponse::HTTP_OK);
     }
+
+    #[Route('/api/post/utilisateur', name:'insert_pers', methods:['POST'])]
+    public function postUser(Request $request, UserRepository $userRepository,EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
+    {
+
+        $user = $serializerInterface->deserialize($request->getContent(),User::class, 'json');
+
+        $existingUser = $entityManagerInterface->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
+
+        if($existingUser) {
+            return new JsonResponse(['error' => 'L\'utilisateur est déjà présent en base de donnée'], 400);
+        } else {
+
+            $entityManagerInterface->persist($user);
+            $entityManagerInterface->flush();
+        
+            $jsonUser = $serializerInterface->serialize($user, 'json');
+        
+            return new JsonResponse($jsonUser, 200, [], true);
+        }
+
+
+
+    }
     
     
     #[Route('/api/utilisateur/{id}', name: 'app_one_inscription', methods: ['GET'])]

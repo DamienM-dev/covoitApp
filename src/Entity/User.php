@@ -44,7 +44,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(["getUser","getConducteur"])]
     private ?string $surname = null;
 
-    #[ORM\ManyToOne(inversedBy: 'id_ride_user', cascade:["persist"])]
+    #[ORM\ManyToOne(inversedBy: 'id_ride_user')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Ride $ride = null;
 
@@ -73,6 +73,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUsername(): string {
+        return $this->getUserIdentifier();
     }
 
     /**

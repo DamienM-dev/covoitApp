@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Brand;
 use App\Entity\Car;
 use App\Entity\User;
 use App\Repository\CarRepository;
@@ -160,43 +161,42 @@ class UserController extends AbstractController
          * 
          * 
          */
-    #[Route('/api/post/utilisateur', name:'insert_pers', methods:['POST'])]
-    public function postUser(ValidatorInterface $validator,Request $request,EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
-    {
+        #[Route('/api/post/utilisateur', name:'insert_pers', methods:['POST'])]
+public function postUser(ValidatorInterface $validator, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse {
+    
+    $data = json_decode($request->getContent(), true);
+    
+    $user = new User();
+    $user->setPassword($data['password']);
+    $user->setEmail($data['email']);
+    $user->setLogin($data['login']);
+    $user->setName($data['name']);
+    $user->setSurname($data['surname']);
+    
+    $car = new Car();
+    $car->setImmatriculation($data['immatriculation']);
+    $car->setNbrPlaces($data['nbr_places']);
 
-        $user = $serializerInterface->deserialize($request->getContent(),User::class, 'json');
-        $car = $serializerInterface->deserialize($request->getContent(), Car::class,'json');
-
-        $existingUser = $entityManagerInterface->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
-       
-        if($existingUser) {
-            return new JsonResponse(['error' => 'L\'utilisateur est déjà présent en base de donnée'], 400);
-        } else {
-
-
-
-            $errors = $validator->validate($user);
-
-            if ($errors->count()> 0) {
-                
-                return new JsonResponse($serializerInterface>serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
-            }
-
-        
-
-            $entityManagerInterface->persist($user);
-            $entityManagerInterface->persist($car);
-            $entityManagerInterface->flush();
-        
-            $jsonUser = $serializerInterface->serialize($user, 'json');
-            $jsonCar = $serializerInterface->serialize($car, 'json');
-
-            // $existingUserId = $existingUser->getId();
-            // $carId = $car->getId();
-            return new JsonResponse($jsonUser, 200, [], true);
-        }
-
+    $userId = $user->getId();
+    $user = $entityManager->getReference(User::class, $userId);
+    $car->addIdFkuser($user);
+          
+    
+    $errors = $validator->validate($user);
+    
+    if ($errors->count() > 0) {
+        return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
     }
+    
+    $entityManager->persist($user);
+    $entityManager->persist($car);
+    $entityManager->flush();
+    
+    $jsonUser = $serializer->serialize($user, 'json');
+    return new JsonResponse($jsonUser, 200, [], true);
+}
+
+    
     
         /**
          * cette méthode affiche un utilisateur par son ID

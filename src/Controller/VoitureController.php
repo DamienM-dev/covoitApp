@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Car;
 use App\Entity\City;
 use App\Entity\User;
+use App\Repository\BrandRepository;
 use App\Repository\CarRepository;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,28 +37,32 @@ class VoitureController extends AbstractController
          * 
          * 
          */
-    #[Route('/api/post/voiture', name: 'post_voiture', methods:['POST'])]
-    public function postCar(ValidatorInterface $validator,Request $request, EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
-    {
-        $voiture = $serializerInterface->deserialize($request->getContent(),Car::class, 'json');
-      
-        $errors = $validator->validate($voiture);
-
-        if ($errors->count()> 0) {
+        #[Route('/api/post/voiture', name: 'post_voiture', methods:['POST'])]
+        public function postCar(ValidatorInterface $validator, Request $request, EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface, BrandRepository $brandRepository): JsonResponse
+        {
+            $voiture = $serializerInterface->deserialize($request->getContent(), Car::class, 'json');
+        
+            $errors = $validator->validate($voiture);
+        
+            if ($errors->count() > 0) {
+                return new JsonResponse($serializerInterface->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+            }
+        
             
-            return new JsonResponse($serializerInterface->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+            // $brandId = $request->request->get('type_of');
+            // $brand = $brandRepository->find($brandId);
+            // $voiture->setTypeOf($brand);
+
+
+            
+        
+            $entityManagerInterface->persist($voiture);
+            $entityManagerInterface->flush();
+        
+            $jsonVoiture = $serializerInterface->serialize($voiture, 'json');
+        
+            return new JsonResponse($jsonVoiture, 200, [], true);
         }
-
-
-        $entityManagerInterface->persist($voiture);
-        $entityManagerInterface->flush();
-    
-        $jsonVoiture = $serializerInterface->serialize($voiture, 'json');
-    
-        return new JsonResponse($jsonVoiture, 200, [], true);
-        
-        
-    }
 
         /**
          * cette méthode supprime une voiture par son ID

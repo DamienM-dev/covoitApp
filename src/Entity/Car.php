@@ -27,7 +27,7 @@ class Car
         minMessage: 'L\'immatriculation doit avoir {{ limit }} caractéres minimum',
         maxMessage: 'L\'immatriculation doit avoir {{ limit }} caractéres maximum',
     )]
-    #[Assert\Regex('[^a-zA-Z0-9]+')]
+    #[Assert\Regex('/^[A-Za-z0-9]+$/')]
     private ?string $immatriculation = null;
 
     #[ORM\Column]

@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RideRepository::class)]
 class Ride
@@ -19,27 +20,36 @@ class Ride
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Vous devez préciser le nombre de km du trajet")]
+    #[Assert\Positive(message: "Un trajet ne peux pas être inférieur à 0")]
     #[Groups(["getUser", "getRide"])]
     private ?int $distance = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    // #[Assert\DateTime(message: "le format doit être Y-m-d H:i:s")]
+    #[Assert\NotBlank(message: "Vous devez préciser l'heure de départ")]
     #[Groups(["getUser", "getRide"])]
     private ?\DateTimeInterface $departure_at = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    // #[Assert\DateTime(message: "le format doit être Y-m-d H:i:s")]
+    #[Assert\NotBlank(message: "Vous devez préciser l'heure de départ")]
     #[Groups(["getUser", "getRide"])]
     private ?\DateTimeInterface $arrival_at = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Vous devez préciser la marque du véhicule")]
+    #[Assert\Regex(pattern:'~^[1-6]$~', message: 'Le nombres de place doit être compris entre 1 et 6')]
+    
     #[Groups(["getUser", "getRide"])]
     private ?int $places_available = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade:["persist"])]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(["getUser", "getRide"])]
     private ?City $city_departure = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade:["persist"])]
     #[ORM\JoinColumn]
     #[Groups(["getUser", "getRide"])]
     private ?City $city_arrival = null;

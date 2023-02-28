@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\City;
 use App\Entity\Ride;
 use App\Repository\RideRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,9 +12,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TrajetController extends AbstractController
 {
+
+        /**
+         * cette méthode affiche tout les trajets
+         * 
+         * 
+         */
     #[Route('/api/trajet', name: 'app_trajet', methods:['GET'])]
     public function getAllRide(RideRepository $rideRepository, SerializerInterface $serializerInterface): JsonResponse
     {
@@ -23,6 +31,11 @@ class TrajetController extends AbstractController
         return new JsonResponse($trajetJson, 200, [], true);
     }
 
+        /**
+         * cette méthode supprime un trajet par son ID
+         * 
+         * 
+         */
     #[Route('api/delete/trajet/{id}', name: 'delete_trajet', methods:['DELETE'])]
     public function deleteRide(int $id, RideRepository $rideRepository, EntityManagerInterface $entityManager): JsonResponse
     {
@@ -43,12 +56,28 @@ class TrajetController extends AbstractController
         }
     }
 
+        /**
+         * cette méthode permet la création d'un trajet
+         * 
+         * 
+         */
+
     #[Route('api/post/trajet', name:'post_trajet', methods:['POST'])]
-    public function postRide(Request $request, EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
+    public function postRide(ValidatorInterface $validator,Request $request, EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
     {
         $trajet = $serializerInterface->deserialize($request->getContent(), Ride::class,'json');
+        $villeD = $serializerInterface->deserialize($request->getContent(), City::class,'json');
 
+        $errors = $validator->validate($trajet);
+        
 
+        if ($errors->count()> 0) {
+            
+            return new JsonResponse($serializerInterface>serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
+        
+
+        $entityManagerInterface->persist($villeD);
         $entityManagerInterface->persist($trajet);
         
         $entityManagerInterface->flush();
@@ -60,21 +89,30 @@ class TrajetController extends AbstractController
 
     }
 
-    #[Route('api/get/trajet/{villeD}/{villeA}', name:'get_trajet', methods:['GET'])]
-    public function getFromManyThing(Request $request, int $villeD, int $villeA, ManagerRegistry $doctrine): JsonResponse
+        /**
+         * cette méthode permet de rechercher un trajet par sa ville d'arivée et de départ
+         * 
+         * 
+         */
+    #[Route('/api/get/trajet/{villeDepart}/{villeArrivee}', name: 'get_trajet', methods: ['GET'])]
+    public function getTrajet(string $villeDepart, string $villeArrivee, ManagerRegistry $doctrine): JsonResponse
     {
-      
-        if ($request->isMethod('GET')) {
-            $em = $doctrine->getManager();
-            $trajet = $em->getRepository(Ride::class)->find($villeD, $villeA);
-            $resultat = [
-                "id" => $trajet->getId(),
-                "city_departure" => $trajet->getCityDeparture(),
-                "city_arrival" => $trajet->getCityArrival(),
-                ""];
-        } else {
-            $resultat = ["Pas de trajet correspondant"];
+        $em = $doctrine->getManager();
+        $trajets = $em->getRepository(Ride::class)->findBy(['city_departure' => $villeDepart, 'city_arrival' => $villeArrivee]);
+        
+        $resultats = [];
+        foreach ($trajets as $trajet) {
+            $resultats[] = [
+                'id' => $trajet->getId(),
+                'departure_at'=>$trajet->getDepartureAt(),
+                'arrival_at'=>$trajet->getArrivalAt(),
+            ];
         }
-        return new JsonResponse($resultat);
+    
+        if (count($resultats) > 0) {
+            return new JsonResponse($resultats);
+        } else {
+            return new JsonResponse(['Pas de trajet correspondant']);
+        }
     }
 }

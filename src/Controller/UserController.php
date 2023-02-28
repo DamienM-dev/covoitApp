@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Car;
 use App\Entity\User;
+use App\Repository\CarRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -11,9 +13,15 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractController
 {
+         /**
+         * cette méthode affiche les utilisateurs
+         * 
+         * 
+         */
     #[Route('/api/utilisateur', name: 'app_user', methods: ['GET'])]
     public function getAllSubscribe(UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
@@ -24,6 +32,12 @@ class UserController extends AbstractController
 
     }
 
+        /**
+         * cette méthode sert à ?
+         * 
+         * 
+         */
+
     #[Route('/api/register', name:('register_user'), methods:['POST'])]
     public function register(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManagerInterface): JsonResponse
     {
@@ -32,6 +46,8 @@ class UserController extends AbstractController
         if(!$register) {
             return new JsonResponse(['error' => 'l\'utilisateur est déjà présent dans notre bdd']);
         }
+
+
         $entityManagerInterface->persist($register);
         $entityManagerInterface->flush();
 
@@ -81,7 +97,11 @@ class UserController extends AbstractController
         // return new JsonResponse([$jsonLogin, 200, [], true]);
 
 
-    
+        /**
+         * cette méthode supprime un utilisateur par son ID
+         * 
+         * 
+         */
     #[Route('/api/delete/utilisateur/{id}', name: 'delete_user', methods:['DELETE'])]
     public function deleteCar(int $id, UserRepository $userRepository, EntityManagerInterface $entityManager)
     {
@@ -97,58 +117,92 @@ class UserController extends AbstractController
         return new JsonResponse(['message' => 'L\'utilisateur a été supprimée avec succès.'], 200);
     }
 
-    
+         /**
+         * cette méthode supprime modifie un utilisateur par son ID
+         * 
+         * 
+         */
 
     #[Route('api/update/utilisateur/{id}', name: 'update_utilisateur', methods: ['PUT'])]
-    public function updateUser(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, UserRepository $userRepository): JsonResponse
+    public function updateUser(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, UserRepository $userRepository, CarRepository $carRepository): JsonResponse
     {
 
         $updatedUser = $serializer->deserialize($request->getContent(), User::class, 'json');
+        // $updatedCar = $serializer->deserialize($request->getContent(), Car::class, 'json');
     
     
         $id = $request->attributes->get('id');
     
         $existingUser = $userRepository->find($id);
+        // $existingCar = $carRepository->find();
+
         if (!$existingUser) {
             return new JsonResponse(['message' => 'Utilisateur non trouvé'], JsonResponse::HTTP_NOT_FOUND);
-        }
+         } //elseif(!$existingCar) {
+        //     return new JsonResponse(['message' => 'voiture non trouvé'], JsonResponse::HTTP_NOT_FOUND);
+        // }
     
     
         $existingUser->setName($updatedUser->getName());
         $existingUser->setSurname($updatedUser->getSurname());
         $existingUser->setEmail($updatedUser->getEmail());
+        // $existingCar->setTypeOf($updatedCar->getTypeOf());
+        // $existingCar->setImmatriculation($updatedCar->getImmatriculation());
+        // $existingCar->setNbrPlaces($updatedCar->getNbrPlaces());
         
         $entityManager->flush();
     
         
         return new JsonResponse(['message' => 'Utilisateur mis à jour'], JsonResponse::HTTP_OK);
     }
-
+         /**
+         * cette méthode créait un utilisateur
+         * 
+         * 
+         */
     #[Route('/api/post/utilisateur', name:'insert_pers', methods:['POST'])]
-    public function postUser(Request $request, UserRepository $userRepository,EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
+    public function postUser(ValidatorInterface $validator,Request $request,EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
     {
 
         $user = $serializerInterface->deserialize($request->getContent(),User::class, 'json');
+        $car = $serializerInterface->deserialize($request->getContent(), Car::class,'json');
 
         $existingUser = $entityManagerInterface->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
-
+       
         if($existingUser) {
             return new JsonResponse(['error' => 'L\'utilisateur est déjà présent en base de donnée'], 400);
         } else {
 
+
+
+            $errors = $validator->validate($user);
+
+            if ($errors->count()> 0) {
+                
+                return new JsonResponse($serializerInterface>serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+            }
+
+        
+
             $entityManagerInterface->persist($user);
+            $entityManagerInterface->persist($car);
             $entityManagerInterface->flush();
         
             $jsonUser = $serializerInterface->serialize($user, 'json');
-        
+            $jsonCar = $serializerInterface->serialize($car, 'json');
+
+            // $existingUserId = $existingUser->getId();
+            // $carId = $car->getId();
             return new JsonResponse($jsonUser, 200, [], true);
         }
 
-
-
     }
     
-    
+        /**
+         * cette méthode affiche un utilisateur par son ID
+         * 
+         * 
+         */
     #[Route('/api/utilisateur/{id}', name: 'app_one_inscription', methods: ['GET'])]
     public function getOneSubscribe(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {

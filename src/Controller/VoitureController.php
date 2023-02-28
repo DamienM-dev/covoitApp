@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Car;
 use App\Entity\City;
+use App\Entity\User;
 use App\Repository\CarRepository;
 
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,28 +13,40 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class VoitureController extends AbstractController
 {
+        /**
+         * cette méthode affiche les voitures
+         * 
+         * 
+         */
     #[Route('/api/voiture', name: 'app_voiture', methods:['GET'])]
-    public function getAllCar(CarRepository $carRepository): JsonResponse
+    public function getAllCar(CarRepository $carRepository, SerializerInterface $serializerInterface): JsonResponse
     {
         $voiture = $carRepository->findAll();
-        return $this->json([
-            'voitures' => $voiture,
-           
-        ]);
+        $voitureJson = $serializerInterface->serialize($voiture, 'json', ['groups' => 'getCar']);
+
+        return new JsonResponse($voitureJson, 200, [], true);
     }
 
+        /**
+         * cette méthode permet d'insérer une voiture
+         * 
+         * 
+         */
     #[Route('/api/post/voiture', name: 'post_voiture', methods:['POST'])]
-    public function postCar(Request $request, EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
+    public function postCar(ValidatorInterface $validator,Request $request, EntityManagerInterface $entityManagerInterface, SerializerInterface $serializerInterface): JsonResponse
     {
         $voiture = $serializerInterface->deserialize($request->getContent(),Car::class, 'json');
-        //$existingCar = $entityManagerInterface->getRepository(['immatriculation' => $voiture->getImmatriculation()]);
+      
+        $errors = $validator->validate($voiture);
 
-        //if(!$existingCar) {
-          // return new JsonResponse(['La voiture est déjà existante dans nos bases de données'], 400);
-       //}
+        if ($errors->count()> 0) {
+            
+            return new JsonResponse($serializerInterface->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+        }
 
 
         $entityManagerInterface->persist($voiture);
@@ -46,26 +59,33 @@ class VoitureController extends AbstractController
         
     }
 
-    // #[Route('/api/delete/voiture/{id}', name: 'delete_voiture', methods:['DELETE'])]
-    // public function deleteCar(int $id, CarRepository $carRepository, EntityManagerInterface $entityManager)
-    // {
-    //     $car = $carRepository->find($id);
+        /**
+         * cette méthode supprime une voiture par son ID
+         * 
+         * 
+         */
+
+    #[Route('/api/delete/voiture/{id}', name: 'delete_voiture', methods:['DELETE'])]
+    public function deleteCar(int $id, CarRepository $carRepository, EntityManagerInterface $entityManager)
+    {
+        $car = $carRepository->find($id);
     
-    //     if (!$car) {
-    //         return new JsonResponse(['error' => 'La voiture avec cet ID n\'existe pas.'], 404);
-    //     }
+        if (!$car) {
+            return new JsonResponse(['error' => 'La voiture avec cet ID n\'existe pas.'], 404);
+        }
 
         
-    //     foreach ($car->getIdFkuser() as $user) {
+        foreach ($car->getIdFkuser() as $user) {
   
-    //     $userId = $user->getId();
-    //     }
+        $userId = $user->getId();
+        }
     
-    //     $car->removeIdFkuser($userId);
-    //     $entityManager->remove($car);
-    //     $entityManager->flush();
+        $user = $entityManager->getReference(User::class, $userId);
+        $car->removeIdFkuser($user);
+        $entityManager->remove($car);
+        $entityManager->flush();
     
-    //     return new JsonResponse(['message' => 'La voiture a été supprimée avec succès.'], 200);
-    // }
+        return new JsonResponse(['message' => 'La voiture a été supprimée avec succès.'], 200);
+    }
     
 }

@@ -2,17 +2,24 @@
 
 namespace App\Controller;
 
-
+use App\Entity\Reservation;
 use App\Repository\ReservationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class InscriptionController extends AbstractController
 {
     
+        /**
+         * cette méthode retourne toutes les inscriptions
+         * 
+         * 
+         */
         #[Route('/api/inscription', name: 'app_inscription', methods: ['GET'])]
         public function getAllSubscribe(ReservationRepository $userRepository, SerializerInterface $serializer): JsonResponse
         {
@@ -21,8 +28,14 @@ class InscriptionController extends AbstractController
     
             return new JsonResponse($inscriptionJson, 200, [], true);
         }
+
+        /**
+         * cette méthode retourne toutes les marques de voiture par son ID
+         * 
+         * 
+         */
         
-        #[Route('/api/inscription/utilisateur/{id}', name: 'app_liste_inscription', methods: ['GET'])]
+        #[Route('/api/inscription/utilisateur/{id}', name: 'app_liste_inscription_id', methods: ['GET'])]
         public function getSubscribeById(int $id, ReservationRepository $reservationRepository, SerializerInterface $serializer): JsonResponse
         {
             $reservations = $reservationRepository->findBy(['reservation_from' => $id]);
@@ -42,10 +55,45 @@ class InscriptionController extends AbstractController
             }
         
             $reservationIdsJson = $serializer->serialize(['reservation_ids' => $reservationIds], 'json',['groups' => 'getInfoPassanger'] );
-        
             return new JsonResponse($reservationIdsJson, 200, [], true);
         }
+
+         /**
+         * cette méthode creait une nouvelle inscription
+         * 
+         * 
+         */
+
+        #[Route('/api/post/inscription', name:('post_inscription'), methods:['POST'])]
+        public function inscriptionUser(ValidatorInterface $validator,Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManagerInterface): JsonResponse
+        {
+            $inscription = $serializer->deserialize($request->getContent(),Reservation::class,'json');
+    
+
+            $errors = $validator->validate($inscription);
+
+            if ($errors->count()> 0) {
+                
+                return new JsonResponse($serializer>serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+            }
+            
+            if ($inscription->getIdReservationRide() !== null) {
+                $entityManagerInterface->persist($inscription);
+                $entityManagerInterface->flush();
+            }
+    
+            $jsonRegister = $serializer->serialize($inscription, 'json');
+    
+            return new JsonResponse($jsonRegister, 200, [], true);
+    
+        }
+    
         
+         /**
+         * cette méthode affiche les conducteurs
+         * 
+         * 
+         */
 
         #[Route('/api/inscription/conducteur', name: 'app_liste_inscription', methods: ['GET'])]
         public function getDriverByIdRide(ReservationRepository $reservationRepository, SerializerInterface $serializer, EntityManagerInterface $entityManagerInterface): JsonResponse
@@ -66,9 +114,14 @@ class InscriptionController extends AbstractController
             return new JsonResponse($json, 200, [], true);
         
         }
+
+         /**
+         * cette méthode supprime une inscription par son ID
+         * 
+         * 
+         */
            
         
-
         #[Route('/api/delete/inscription/{id}', name: 'delete_inscription', methods:['DELETE'])]
         public function deleteSubscribe(int $id, ReservationRepository $reservationRepository, EntityManagerInterface $entityManagerInterface)
         {

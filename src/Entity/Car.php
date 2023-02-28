@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CarRepository::class)]
 class Car
@@ -18,9 +19,24 @@ class Car
     private ?int $id = null;
 
     #[ORM\Column]
+    #[Groups(["getCar"])]
+    #[Assert\NotBlank(message: "Vous devez préciser l'immatriculation du véhicule")]
+    #[Assert\Length(
+        min: 3,
+        max: 15,
+        minMessage: 'L\'immatriculation doit avoir {{ limit }} caractéres minimum',
+        maxMessage: 'L\'immatriculation doit avoir {{ limit }} caractéres maximum',
+    )]
+    #[Assert\Regex('[^a-zA-Z0-9]+')]
     private ?string $immatriculation = null;
 
     #[ORM\Column]
+    #[Groups(["getCar"])]
+    #[Assert\NotBlank(message: "Vous devez préciser le nombre de places")]
+    #[Assert\Length(
+        min: 1, 
+        max: 7,minMessage: " {{ limit }} place minimum", 
+        maxMessage: "{{ limit }} places maximum")]
     private ?int $nbr_places = null;
 
     #[ORM\ManyToMany(targetEntity: User::class)]

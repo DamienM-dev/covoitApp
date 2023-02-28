@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CityRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CityRepository::class)]
 class City
@@ -16,9 +17,14 @@ class City
 
     #[ORM\Column(length: 20)]
     #[Groups(["getRide"])]
+    #[Assert\NotBlank(message: "Vous devez préciser le nom de la ville")]
+    #[Assert\Length(min: 2, max: 30,minMessage: "le nom doit faire au moins {{ limit }} caractères", maxMessage: "le nom doit faire au maximum {{ limit }} caractéres")]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "Vous devez préciser le code postal")]
+    #[Assert\Length(min: 5, max: 5,minMessage: "le cp doit faire au moins {{ limit }} caractères", maxMessage: "le cp doit faire au maximum {{ limit }} caractéres")]
+    #[Assert\Regex('~^\d{5}$~', message: "Vous devez écrire le code postal au format XXXXX")]
     private ?int $cp = null;
 
     #[ORM\Column]

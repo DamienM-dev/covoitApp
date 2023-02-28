@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 class Reservation
@@ -19,10 +20,20 @@ class Reservation
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+      /**
+     * @var string A "Y-m-d H:i:s" formatted value
+     */
+    // #[Assert\DateTime(message: "le format doit être Y-m-d H:i:s")]
+    #[Assert\NotBlank(message: "Vous devez préciser l'heure de départ")]
     #[Groups(["getUser"])]
     private ?\DateTimeInterface $created_at = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+       /**
+     * @var string A "Y-m-d H:i:s" formatted value
+     */
+    // #[Assert\DateTime(message: "le format doit être Y-m-d H:i:s")]
+    #[Assert\NotBlank(message: "Vous devez préciser l'heure d")]
     #[Groups(["getUser"])]
     private ?\DateTimeInterface $uptated_at = null;
 

@@ -11,9 +11,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class VilleController extends AbstractController
 {
+
+        /**
+         * cette méthode affiche la liste des villes
+         * 
+         * 
+         */
     #[Route('/api/ville', name: 'app_ville', methods: ['GET'])]
     public function getAllCity(CityRepository $cityRepository): JsonResponse
     {
@@ -24,6 +31,11 @@ class VilleController extends AbstractController
         ]);
     }
 
+        /**
+         * cette méthode supprime une ville par son ID
+         * 
+         * 
+         */
     #[Route('api/delete/ville/{id}', name: 'app_ville', methods:['DELETE'])]
     public function getDeleteCity(int $id, CityRepository $cityRepository, EntityManagerInterface $entityManager): JsonResponse
     {
@@ -32,6 +44,8 @@ class VilleController extends AbstractController
         if (!$deleteCity) {
             return new JsonResponse(['error' => 'La ville avec cet ID n\'existe pas.'], 404);
         }
+
+        
     
         $entityManager->remove($deleteCity);
         $entityManager->flush();
@@ -39,8 +53,13 @@ class VilleController extends AbstractController
         return new JsonResponse(['message' => 'La ville a été supprimée avec succès.'], 200);
     }
 
+        /**
+         * cette méthode permet d'insérer une ville
+         * 
+         * 
+         */
     #[Route('api/post/ville', name:'ajouter_livre', methods:['POST'])]
-public function createCity(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse
+public function createCity(ValidatorInterface $validator ,Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager): JsonResponse
 {
     $city = $serializer->deserialize($request->getContent(), City::class, 'json');
 
@@ -48,6 +67,13 @@ public function createCity(Request $request, SerializerInterface $serializer, En
 
     if ($existingCity) {
         return new JsonResponse(['error' => 'La ville existe déjà en base de données'], 409);
+    }
+
+    $errors = $validator->validate($city);
+
+    if ($errors->count()> 0) {
+        
+        return new JsonResponse($serializer>serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
     }
 
     $entityManager->persist($city);
@@ -59,7 +85,11 @@ public function createCity(Request $request, SerializerInterface $serializer, En
 }
 
 
-
+         /**
+         * cette méthode permet d'afficher les codes postal
+         * 
+         * 
+         */
     #[Route('/api/postal', name: 'code_postal', methods: ['GET'])]
 public function getAllCp(CityRepository $cityRepository): JsonResponse
 {

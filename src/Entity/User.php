@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -20,6 +21,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180, unique: true)]
     #[Groups(["getUser","getConducteur"])]
+    #[Assert\Email(
+        message: 'Cette email {{ value }} n\'est pas valide.',
+    )]#[Assert\NotBlank(message: "Vous devez préciser le champs email")]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -30,18 +34,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     #[Groups(["getUser"])]
+    #[Assert\NotBlank(message: "Vous devez préciser le mot de passe")]
     private ?string $password = null;
 
     #[ORM\Column(length: 20)]
     #[Groups(["getUser"])]
+    #[Assert\NotBlank(message: "Vous devez préciser le login")]
     private ?string $login = null;
 
     #[ORM\Column(length: 30)]
     #[Groups(["getUser","getConducteur"])]
+    #[Assert\NotBlank(message: "Vous devez préciser votre nom")]
     private ?string $name = null;
 
     #[ORM\Column(length: 30)]
     #[Groups(["getUser","getConducteur"])]
+    #[Assert\NotBlank(message: "Vous devez préciser le prénom")]
     private ?string $surname = null;
 
     #[ORM\ManyToOne(inversedBy: 'id_ride_user')]
